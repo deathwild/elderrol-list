@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ELDERROL - Pendataan Anggota</title>
+    <style>
+        :root {
+            --color-bg-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --color-bg-secondary: rgba(255, 255, 255, 0.95);
+            --color-text-primary: #2d3748;
+            --color-text-secondary: #718096;
+            --color-primary: #667eea;
+            --color-primary-hover: #5a67d8;
+            --color-border: rgba(203, 213, 224, 0.5);
+            --color-success: #48bb78;
+            --color-error: #f56565;
+            --color-shadow: rgba(102, 126, 234, 0.15);
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --color-bg-primary: linear-gradient(135deg, #1a202c 0%, #2d3748 100%);
+                --color-bg-secondary: rgba(45, 55, 72, 0.95);
+                --color-text-primary: #f7fafc;
+                --color-text-secondary: #cbd5e0;
+                --color-primary: #7c3aed;
+                --color-primary-hover: #6d28d9;
+                --color-border: rgba(74, 85, 104, 0.5);
+                --color-shadow: rgba(124, 58, 237, 0.2);
+            }
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--color-bg-primary);
+            color: var(--color-text-primary);
+            padding: 20px;
+            line-height: 1.6;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--color-bg-primary);
+            z-index: -1;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            font-size: 32px;
+            margin-bottom: 8px;
+            color: var(--color-text-primary);
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .subtitle {
+            color: var(--color-text-secondary);
+            margin-bottom: 24px;
+            font-size: 14px;
+        }
+
+        .card {
+            background: var(--color-bg-secondary);
+            border: 1px solid var(--color-border);
+            border-radius: 16px;
+            padding: 32px;
+            margin-bottom: 24px;
+            box-shadow: 0 10px 30px var(--color-shadow);
+            backdrop-filter: blur(10px);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 15px 40px var(--color-shadow);
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            font-size: 14px;
+            color: var(--color-text-primary);
+        }
+
+        input[type="text"],
+        input[type="tel"] {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid var(--color-border);
+            border-radius: 10px;
+            font-size: 14px;
+            background: rgba(255, 255, 255, 0.5);
+            color: var(--color-text-primary);
+            transition: all 0.3s ease;
+        }
+
+        input[type="text"]:focus,
+        input[type="tel"]:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-hover) 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn-primary:hover::before {
+            left: 100%;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background: transparent;
+            border: 1px solid var(--color-border);
+            color: var(--color-text-primary);
+            margin-left: 8px;
+        }
+
+        .btn-secondary:hover {
+            background: var(--color-bg-primary);
+        }
+
+        .btn-export {
+            background: #2d6f3a;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: none;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-export:hover {
+            background: #245a2f;
+        }
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin-top: 16px;
+        }
+
+        th {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+            padding: 16px 12px;
+            text-align: left;
+            font-size: 13px;
+            font-weight: 700;
+            border-bottom: 2px solid var(--color-primary);
+            color: var(--color-text-primary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        th:first-child {
+            border-top-left-radius: 10px;
+        }
+
+        th:last-child {
+            border-top-right-radius: 10px;
+        }
+
+        td {
+            padding: 16px 12px;
+            border-bottom: 1px solid var(--color-border);
+            font-size: 14px;
+            color: var(--color-text-primary);
+        }
+
+        tr:hover {
+            background: rgba(102, 126, 234, 0.05);
+            transform: scale(1.01);
+            transition: all 0.2s ease;
+        }
+
+        .btn-delete {
+            padding: 6px 12px;
+            background: transparent;
+            border: 1px solid var(--color-error);
+            color: var(--color-error);
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-delete:hover {
+            background: var(--color-error);
+            color: white;
+        }
+
+        .stats {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+
+        .stat-card {
+            background: var(--color-bg-secondary);
+            border: 1px solid var(--color-border);
+            border-radius: 12px;
+            padding: 24px;
+            flex: 1;
+            min-width: 150px;
+            box-shadow: 0 8px 25px var(--color-shadow);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--color-primary), var(--color-primary-hover));
+        }
+
+        .stat-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 12px 35px var(--color-shadow);
+        }
+
+        .stat-value {
+            font-size: 36px;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--color-primary), var(--color-primary-hover));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-label {
+            font-size: 13px;
+            color: var(--color-text-secondary);
+            margin-top: 4px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 48px 24px;
+            color: var(--color-text-secondary);
+        }
+
+        .alert {
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            font-size: 14px;
+        }
+
+        .alert-success {
+            background: rgba(33, 128, 141, 0.1);
+            border: 1px solid var(--color-success);
+            color: var(--color-success);
+        }
+
+        .alert-error {
+            background: rgba(192, 21, 47, 0.1);
+            border: 1px solid var(--color-error);
+            color: var(--color-error);
+        }
+
+        .alert-info {
+            background: rgba(33, 128, 141, 0.1);
+            border: 1px solid var(--color-primary);
+            color: var(--color-primary);
+        }
+
+        .loading {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--color-primary);
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 0.6s linear infinite;
+            margin-left: 8px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .header-left h1 {
+            margin-bottom: 4px;
+        }
+
+        .admin-btn {
+            padding: 10px 20px;
+            border: 2px solid var(--color-primary);
+            background: transparent;
+            color: var(--color-primary);
+            border-radius: 25px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .admin-btn:hover {
+            background: var(--color-primary);
+            color: white;
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .admin-btn.logged-in {
+            background: linear-gradient(135deg, var(--color-success), #38a169);
+            border-color: var(--color-success);
+            color: white;
+            box-shadow: 0 4px 15px rgba(72, 187, 120, 0.3);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--color-bg-secondary);
+            border: 1px solid var(--color-border);
+            border-radius: 12px;
+            padding: 24px;
+            max-width: 400px;
+            width: 90%;
+        }
+
+        .modal-header {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+
+        .modal-body {
+            margin-bottom: 20px;
+        }
+
+        .modal-footer {
+            display: flex;
+            gap: 8px;
+            justify-content: flex-end;
+        }
+
+        input[type="password"] {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            font-size: 14px;
+            background: var(--color-bg-primary);
+            color: var(--color-text-primary);
+            transition: border-color 0.2s;
+        }
+
+        input[type="password"]:focus {
+            outline: 2px solid var(--color-primary);
+            border-color: var(--color-primary);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="header-left">
+                <h1>👥 ELDERROL - Pendataan Anggota</h1>
+                <p class="subtitle">Sistem pendataan anggota guild - Powered by Google Sheets</p>
+            </div>
+            <div class="header-right">
+                <button class="admin-btn" id="adminBtn" onclick="toggleAdmin()">🔐 Login Admin</button>
+            </div>
+        </div>
+
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-value" id="totalCount">-</div>
+                <div class="stat-label">Total Anggota</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2 style="margin-bottom: 16px; font-size: 18px;">Form Pendataan Anggota</h2>
+            
+            <div id="alertContainer"></div>
+
+            <form id="registrationForm">
+                <div class="form-group">
+                    <label for="nameInput">Nama Lengkap *</label>
+                    <input type="text" id="nameInput" placeholder="Masukkan nama lengkap" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="ignInput">IGN (In-Game Name) *</label>
+                    <input type="text" id="ignInput" placeholder="Masukkan IGN" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="phoneInput">Nomor HP *</label>
+                    <input type="tel" id="phoneInput" placeholder="08xxxxxxxxxx" required>
+                </div>
+
+                <div style="display: flex; align-items: center;">
+                    <button type="submit" class="btn btn-primary" id="submitBtn">
+                        Tambah Data
+                    </button>
+                    <button type="button" class="btn btn-secondary" onclick="resetForm()">Reset</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 12px;">
+                <h2 style="font-size: 18px;">Daftar Anggota</h2>
+                <div class="action-buttons" id="actionButtons">
+                    <button class="btn-export" onclick="exportToExcel()" id="exportBtn" style="display: none;">
+                        📥 Export ke Excel
+                    </button>
+                    <button class="btn btn-secondary" onclick="refreshData()">🔄 Refresh</button>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table id="membersTable">
+                    <thead>
+                        <tr>
+                            <th style="width: 50px;">No</th>
+                            <th id="namaHeader">Nama Lengkap</th>
+                            <th>IGN</th>
+                            <th id="phoneHeader">Nomor HP</th>
+                            <th style="width: 150px;">Waktu Daftar</th>
+                            <th style="width: 100px;" id="aksiHeader">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                        <tr>
+                            <td colspan="6" class="empty-state">
+                                <div class="loading"></div> Memuat data...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="adminModal">
+        <div class="modal-content">
+            <div class="modal-header">Login Admin</div>
+            <div class="modal-body">
+                <label for="adminPassword">Password Admin:</label>
+                <input type="password" id="adminPassword" placeholder="Masukkan password admin">
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeAdminModal()">Batal</button>
+                <button class="btn btn-primary" onclick="loginAdmin()">Login</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const ADMIN_PASSWORD = "sasageo";
+        const GOOGLE_SHEETS_URL = "https://script.google.com/macros/s/AKfycbxmFLJnyj4q_7w11YCbkTNKlbYYyVP274EC37KG0bqzSHAxYXysNOdwK2aEJlVraMcS/exec";
+
+        let isAdminLoggedIn = false;
+        let members = [];
+
+        function checkAdminStatus() {
+            const adminSession = sessionStorage.getItem('adminLoggedIn');
+            if (adminSession === 'true') {
+                isAdminLoggedIn = true;
+                updateAdminButton();
+                renderTable();
+            }
+        }
+
+        function updateAdminButton() {
+            const adminBtn = document.getElementById('adminBtn');
+            if (isAdminLoggedIn) {
+                adminBtn.textContent = '👤 Admin (Logout)';
+                adminBtn.classList.add('logged-in');
+            } else {
+                adminBtn.textContent = '🔐 Login Admin';
+                adminBtn.classList.remove('logged-in');
+            }
+        }
+
+        window.toggleAdmin = function() {
+            if (isAdminLoggedIn) {
+                if (confirm('Logout dari admin?')) {
+                    isAdminLoggedIn = false;
+                    sessionStorage.removeItem('adminLoggedIn');
+                    updateAdminButton();
+                    renderTable();
+                    showAlert('Berhasil logout', 'info');
+                }
+            } else {
+                document.getElementById('adminModal').classList.add('show');
+                document.getElementById('adminPassword').value = '';
+                document.getElementById('adminPassword').focus();
+            }
+        };
+
+        window.closeAdminModal = function() {
+            document.getElementById('adminModal').classList.remove('show');
+        };
+
+        window.loginAdmin = function() {
+            const password = document.getElementById('adminPassword').value;
+            if (password === ADMIN_PASSWORD) {
+                isAdminLoggedIn = true;
+                sessionStorage.setItem('adminLoggedIn', 'true');
+                updateAdminButton();
+                closeAdminModal();
+                renderTable();
+                showAlert('Login admin berhasil!', 'success');
+            } else {
+                showAlert('Password admin salah!', 'error');
+            }
+        };
+
+        document.getElementById('adminPassword')?.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                loginAdmin();
+            }
+        });
+
+        function showAlert(message, type) {
+            const alertContainer = document.getElementById('alertContainer');
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type}`;
+            alert.textContent = message;
+            alertContainer.innerHTML = '';
+            alertContainer.appendChild(alert);
+            
+            setTimeout(() => {
+                alert.remove();
+            }, 5000);
+        }
+
+        function updateStats() {
+            document.getElementById('totalCount').textContent = members.length;
+        }
+
+        function formatDate(timestamp) {
+            const date = new Date(timestamp);
+            return date.toLocaleString('id-ID', {
+                day: '2-digit',
+                month: 'short',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('tableBody');
+            
+            if (members.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="empty-state">
+                            Belum ada data anggota. Silakan isi form di atas untuk menambah data.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            const sortedMembers = [...members].sort((a, b) => b.timestamp - a.timestamp);
+
+            const aksiHeader = document.getElementById('aksiHeader');
+            const namaHeader = document.getElementById('namaHeader');
+            const phoneHeader = document.getElementById('phoneHeader');
+            const exportBtn = document.getElementById('exportBtn');
+            
+            if (aksiHeader) {
+                aksiHeader.style.display = isAdminLoggedIn ? '' : 'none';
+            }
+            if (namaHeader) {
+                namaHeader.style.display = isAdminLoggedIn ? '' : 'none';
+            }
+            if (phoneHeader) {
+                phoneHeader.style.display = isAdminLoggedIn ? '' : 'none';
+            }
+            if (exportBtn) {
+                exportBtn.style.display = isAdminLoggedIn ? '' : 'none';
+            }
+
+            tbody.innerHTML = sortedMembers.map((item, index) => `
+                <tr>
+                    <td>${index + 1}</td>
+                    ${isAdminLoggedIn ? `<td>${escapeHtml(item.name)}</td>` : ''}
+                    <td>${escapeHtml(item.ign)}</td>
+                    ${isAdminLoggedIn ? `<td>${escapeHtml(item.phone)}</td>` : ''}
+                    <td>${isAdminLoggedIn ? formatDate(item.timestamp) : new Date(item.timestamp).toLocaleDateString('id-ID', {day: '2-digit', month: 'short', year: 'numeric'})}</td>
+                    ${isAdminLoggedIn ? `
+                    <td>
+                        <button class="btn-delete" onclick="window.deleteMember('${item.id}')">
+                            Hapus
+                        </button>
+                    </td>
+                    ` : ''}
+                </tr>
+            `).join('');
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        window.exportToExcel = function() {
+            if (members.length === 0) {
+                showAlert('Tidak ada data untuk di-export!', 'error');
+                return;
+            }
+
+            const sortedMembers = [...members].sort((a, b) => b.timestamp - a.timestamp);
+
+            let csvContent = '\uFEFF';
+            csvContent += 'No,Nama Lengkap,IGN,Nomor HP,Waktu Daftar\n';
+
+            sortedMembers.forEach((item, index) => {
+                const row = [
+                    index + 1,
+                    `"${item.name}"`,
+                    `"${item.ign}"`,
+                    `"${item.phone}"`,
+                    `"${formatDate(item.timestamp)}"`
+                ].join(',');
+                csvContent += row + '\n';
+            });
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            
+            link.setAttribute('href', url);
+            link.setAttribute('download', `elderrol_members_${new Date().getTime()}.csv`);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            showAlert('Data berhasil di-export ke Excel!', 'success');
+        };
+
+        async function loadData() {
+            try {
+                const response = await fetch(GOOGLE_SHEETS_URL);
+                const result = await response.json();
+                
+                if (result.status === 'success') {
+                    members = result.data;
+                    updateStats();
+                    renderTable();
+                } else {
+                    showAlert('Gagal memuat data dari Google Sheets', 'error');
+                }
+            } catch (error) {
+                console.error('Load data error:', error);
+                showAlert('Terjadi kesalahan saat memuat data', 'error');
+                document.getElementById('tableBody').innerHTML = `
+                    <tr>
+                        <td colspan="6" class="empty-state">
+                            Gagal memuat data. Pastikan Google Apps Script sudah di-deploy dengan benar.
+                        </td>
+                    </tr>
+                `;
+            }
+        }
+
+        checkAdminStatus();
+        loadData();
+
+        document.getElementById('registrationForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const name = document.getElementById('nameInput').value.trim();
+            const ign = document.getElementById('ignInput').value.trim();
+            const phone = document.getElementById('phoneInput').value.trim();
+
+            if (!name || !ign || !phone) {
+                showAlert('Semua field harus diisi!', 'error');
+                return;
+            }
+
+            const phonePattern = /^(\+62|62|0)[0-9]{9,12}$/;
+            if (!phonePattern.test(phone)) {
+                showAlert('Format nomor HP tidak valid! Gunakan format: 08xxxxxxxxxx', 'error');
+                return;
+            }
+
+            const submitBtn = document.getElementById('submitBtn');
+
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = 'Menyimpan... <span class="loading"></span>';
+
+            try {
+                const timestamp = Date.now();
+
+                const response = await fetch(GOOGLE_SHEETS_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'text/plain',
+                    },
+                    body: JSON.stringify({
+                        name: name,
+                        ign: ign,
+                        phone: phone,
+                        timestamp: new Date(timestamp).toLocaleString('id-ID')
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.status === 'success') {
+                    showAlert('Data berhasil disimpan!', 'success');
+                    resetForm();
+                    await loadData();
+                } else {
+                    showAlert('Gagal menyimpan data: ' + result.message, 'error');
+                }
+
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Tambah Data';
+
+            } catch (error) {
+                console.error('Error:', error);
+                showAlert('Terjadi kesalahan: ' + error.message, 'error');
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Tambah Data';
+            }
+        });
+
+        window.deleteMember = async function(id) {
+            if (!confirm('Yakin ingin menghapus anggota ini?')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(GOOGLE_SHEETS_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'text/plain',
+                    },
+                    body: JSON.stringify({
+                        action: 'delete',
+                        id: id
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.status === 'success') {
+                    showAlert('Data berhasil dihapus', 'success');
+                    await loadData();
+                } else {
+                    showAlert('Gagal menghapus: ' + result.message, 'error');
+                }
+            } catch (error) {
+                console.error('Delete error:', error);
+                showAlert('Gagal menghapus: ' + error.message, 'error');
+            }
+        };
+
+        window.resetForm = function() {
+            document.getElementById('registrationForm').reset();
+        };
+
+        window.refreshData = async function() {
+            showAlert('Data sedang direfresh...', 'info');
+            await loadData();
+        };
+    </script>
+</body>
+</html>
